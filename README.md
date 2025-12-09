@@ -9,15 +9,10 @@ This repository contains installation guides for the FortiCNAPP agent on differe
 
 ## Quick Start
 
-### Getting the Installation URL
-
-1. Log in to your FortiCNAPP console
-2. Navigate to **Settings** > **Agent Tokens**
-3. Click **Add New** > Select your platform (**Linux** or **Windows**)
-4. Click **Actions** > **Install**
-5. Click **Copy URL** to copy the installation script URL
-
 ### Linux Installation
+
+1. Get the installation URL from **Settings** > **Agent Tokens** > **Add New** > **Linux** > **Actions** > **Install**
+2. Download and run the installation script:
 
 ```bash
 wget <INSTALLATION_URL>
@@ -27,10 +22,12 @@ sudo ./install.sh
 
 ### Windows Installation
 
-```powershell
-Invoke-WebRequest -Uri "<INSTALLATION_URL>" -OutFile "install.ps1"
-Set-ExecutionPolicy Bypass -Scope Process -Force
-.\install.ps1
+1. Download the MSI installer from **Settings** > **Configuration** > **Agent Installation**
+2. Get the access token from **Settings** > **Agent Tokens** > **Add New** > **Windows**
+3. Install using msiexec:
+
+```cmd
+msiexec /i LWDataCollector.msi ACCESSTOKEN=<access_token> SERVERURL=https://api.lacework.net
 ```
 
 ## Prerequisites
@@ -45,7 +42,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 - Supported Windows version
 - Administrator privileges
 - Internet connectivity
-- PowerShell (pre-installed)
 
 ## Additional Resources
 

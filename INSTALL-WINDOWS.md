@@ -7,63 +7,70 @@ This guide provides step-by-step instructions for installing the FortiCNAPP agen
 - A Windows machine running a supported version of Windows
 - Administrator privileges on the machine
 - Internet connectivity
-- PowerShell (typically pre-installed on Windows)
 
-## Getting the Installation URL
+## Getting Installation Files and Token
+
+### Download the MSI Installer
 
 1. Log in to your FortiCNAPP console
-2. Navigate to **Settings** > **Agent Tokens**
-3. Click **Add New** > **Windows**
-4. Click **Actions** > **Install**
-5. Click **Copy URL** to copy the installation script URL
+2. Navigate to **Settings** > **Configuration** > **Agent Installation**
+3. Locate the Windows agent MSI download link
+4. Download the MSI installer (typically named `LWDataCollector.msi`) to your local machine
 
-The URL will look like:
+### Get the Access Token
+
+1. In the FortiCNAPP Console, navigate to **Settings** > **Agent Tokens**
+2. Click **Add New** > **Windows**
+3. Enter a name for the token (optional: add a description)
+4. Click **Save** to generate the token
+5. Click the actions menu next to the token and select **Copy** to copy the access token
+
+### Get the Server URL
+
+The server URL (API endpoint) is typically:
 ```
-https://<account>.lacework.net/mgr/v1/download/<token>/install.ps1
+https://api.lacework.net
 ```
+
+For specific account endpoints, check your FortiCNAPP console settings.
 
 ## Installation
 
 On the target Windows machine, follow these steps:
 
-1. **Open PowerShell as Administrator**:
+1. **Open Command Prompt as Administrator**:
    - Click on the **Start** menu
-   - Type `PowerShell`
-   - Right-click on **Windows PowerShell** and select **Run as administrator**
+   - Type `cmd`
+   - Right-click on **Command Prompt** and select **Run as administrator**
 
-2. **Download the Installation Script**:
-   ```powershell
-   Invoke-WebRequest -Uri "<INSTALLATION_URL>" -OutFile "install.ps1"
+2. **Navigate to the directory containing the MSI installer**:
+   ```cmd
+   cd <path-to-msi-file>
    ```
 
-   Replace `<INSTALLATION_URL>` with the URL you copied from the FortiCNAPP console.
+3. **Install the agent using msiexec**:
+   ```cmd
+   msiexec /i LWDataCollector.msi ACCESSTOKEN=<access_token> SERVERURL=<server_url>
+   ```
+
+   Replace:
+   - `<access_token>` with the access token you copied from the FortiCNAPP console
+   - `<server_url>` with your API endpoint (typically `https://api.lacework.net`)
 
    **Example:**
-   ```powershell
-   Invoke-WebRequest -Uri "https://<account>.lacework.net/mgr/v1/download/<token>/install.ps1" -OutFile "install.ps1"
+   ```cmd
+   msiexec /i LWDataCollector.msi ACCESSTOKEN=Your_Access_Token_Here SERVERURL=https://api.lacework.net
    ```
 
-3. **Run the Installation Script**:
-   ```powershell
-   .\install.ps1
-   ```
-
-   If you encounter execution policy restrictions, you can temporarily bypass them by running:
-   ```powershell
-   Set-ExecutionPolicy Bypass -Scope Process -Force
-   .\install.ps1
-   ```
-
-   After the installation, it's recommended to revert the execution policy:
-   ```powershell
-   Set-ExecutionPolicy Restricted -Scope Process -Force
+4. **Optional: Disable automatic upgrades during installation**:
+   ```cmd
+   msiexec /i LWDataCollector.msi ACCESSTOKEN=<access_token> SERVERURL=<server_url> AUTOUPGRADE=disabled
    ```
 
 **Complete Example:**
-```powershell
-Invoke-WebRequest -Uri "https://<account>.lacework.net/mgr/v1/download/<token>/install.ps1" -OutFile "install.ps1"
-Set-ExecutionPolicy Bypass -Scope Process -Force
-.\install.ps1
+```cmd
+cd C:\Downloads
+msiexec /i LWDataCollector.msi ACCESSTOKEN=Your_Access_Token_Here SERVERURL=https://api.lacework.net
 ```
 
 ## Verification
@@ -88,23 +95,9 @@ The agent configuration file is typically located at:
 C:\ProgramData\Lacework\config\config.json
 ```
 
-The installer automatically creates this configuration file during installation using the access token embedded in the installation URL.
+The installer automatically creates this configuration file during installation using the access token and server URL provided during MSI installation.
 
 ## Troubleshooting
-
-### PowerShell Execution Policy
-
-If you encounter execution policy errors, you can check the current policy:
-
-```powershell
-Get-ExecutionPolicy
-```
-
-To allow script execution for the current session only:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force
-```
 
 ### Check Installation Logs
 
@@ -153,9 +146,9 @@ C:\Program Files\Lacework\uninstall.exe
 
 ## Security Notes
 
-- The installation script requires administrator privileges to install system services and configure the agent
-- The access token is embedded in the installation URL and should be kept secure
-- Always verify the source of the installation script before execution
+- The MSI installer requires administrator privileges to install system services and configure the agent
+- The access token is provided as a parameter during installation and should be kept secure
+- Always verify the source of the MSI installer before execution
 - The agent runs as a Windows service with appropriate permissions to monitor system activity
 - Configuration files are stored in a protected location with restricted access
 
